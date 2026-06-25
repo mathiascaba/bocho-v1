@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Códigos de Activación</title>
+    <link rel="icon" href="img/app-icon.png" type="image/png">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #f4f6f9; font-family: system-ui, sans-serif; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .card { background: white; border-radius: 16px; padding: 30px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+        h1 { color: #002a80; font-size: 22px; margin-bottom: 20px; }
+        .login input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; margin-bottom: 12px; }
+        .login button { width: 100%; padding: 12px; background: #002a80; color: white; border: none; border-radius: 25px; font-size: 16px; font-weight: 600; cursor: pointer; }
+        .admin-panel { display: none; }
+        .gen-btn { padding: 12px 24px; background: #ff7800; color: white; border: none; border-radius: 25px; font-size: 16px; font-weight: 600; cursor: pointer; margin-right: 10px; }
+        .code-list { margin-top: 20px; }
+        .code-item { display: flex; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid #eee; font-family: monospace; font-size: 14px; }
+        .code-item .used { color: #22c55e; }
+        .code-item .pending { color: #999; }
+        .used-info { color: #999; font-size: 12px; font-family: system-ui; }
+        .logout { float: right; padding: 8px 16px; background: transparent; color: #d9534f; border: 1px solid #d9534f; border-radius: 20px; cursor: pointer; font-size: 13px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card login" id="loginCard">
+            <h1>Admin - Banca Móvil</h1>
+            <input type="password" id="pwdInput" placeholder="Contraseña de admin">
+            <button onclick="login()">INGRESAR</button>
+            <p style="color:#d9534f;font-size:13px;margin-top:10px;display:none" id="loginError">Contraseña incorrecta</p>
+        </div>
+
+        <div class="admin-panel" id="adminPanel">
+            <div class="card">
+                <button class="logout" onclick="logout()">Cerrar sesión</button>
+                <h1>Gestión de códigos</h1>
+                <div style="margin: 15px 0;">
+                    <button class="gen-btn" onclick="generar(1)">Generar 1 código</button>
+                    <button class="gen-btn" onclick="generar(5)">Generar 5 códigos</button>
+                    <button class="gen-btn" onclick="generar(10)">Generar 10 códigos</button>
+                </div>
+                <div id="resultCodes" style="display:none;background:#f0fdf4;border:1px solid #22c55e;border-radius:10px;padding:15px;margin:15px 0;">
+                    <strong style="color:#166534;">Códigos generados:</strong>
+                    <div id="codesList" style="font-family:monospace;margin-top:8px;font-size:14px;"></div>
+                </div>
+                <button class="gen-btn" style="background:#002a80;" onclick="recargarLista()">Actualizar lista</button>
+            </div>
+
+            <div class="card">
+                <h2 style="font-size:18px;color:#002a80;margin-bottom:15px;">Códigos</h2>
+                <div id="codeListContainer">
+                    <p style="color:#999;">Cargando...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let token = localStorage.getItem('admin_token')
+
+        async function api(method, body) {
+            const res = await fetch('/api/admin', {
+                method,
+                headers: { 'Content-Type': 'application/json', 'Authorization': token },
+                body: body ? JSON.stringify(body) : undefined
+            })
+            if (res.status === 401) { token = null; localStorage.removeItem('admin_token'); location.reload(); return null }
+            return res.json()
+        }
+
+        function login() {
+            token = document.getElementById('pwdInput').value
+            localStorage.setItem('admin_token', token)
+            document.getElementById('loginError').style.display = 'none'
+            cargarAdmin()
+        }
+
+        function logout() {
+            localStorage.removeItem('admin_token')
+            token = null
+            document.getElementById('adminPanel').style.display = 'none'
+            document.getElementById('loginCard').style.display = 'block'
+        }
+
+        async function cargarAdmin() {
+            const data = await api('GET')
+            if (!data) return
+
+            if (data.error) {
+                document.getElementById('loginError').style.display = 'block'
+                localStorage.removeItem('admin_token')
+                return
+            }
+
+            document.getElementById('loginCard').style.display = 'none'
+            document.getElementById('adminPanel').style.display = 'block'
+            renderCodes(data.codes || [])
+        }
+
+        function renderCodes(codes) {
+            const container = document.getElementById('codeListContainer')
+            if (codes.length === 0) {
+                container.innerHTML = '<p style="color:#999;">No hay códigos generados aún</p>'
+                return
+            }
+            let html = ''
+            codes.sort((a, b) => (a.used ? 1 : 0) - (b.used ? 1 : 0))
+            for (const c of codes) {
+                if (c.used) {
+                    html += `<div class="code-item"><span style="color:#22c55e;">${c.key}</span><span class="used-info">Usado · ${c.deviceId?.substring(0,12)}...</span></div>`
+                } else {
+                    html += `<div class="code-item"><span>${c.key}</span><span class="pending">Disponible</span></div>`
+                }
+            }
+            container.innerHTML = html
+        }
+
+        async function generar(n) {
+            const data = await api('POST', { action: 'generate', count: n })
+            if (!data) return
+            if (data.codes) {
+                const div = document.getElementById('codesList')
+                div.innerHTML = data.codes.map(c => `<div>${c}</div>`).join('')
+                document.getElementById('resultCodes').style.display = 'block'
+                recargarLista()
+            }
+        }
+
+        async function recargarLista() {
+            cargarAdmin()
+        }
+
+        if (token) cargarAdmin()
+    </script>
+</body>
+</html>
