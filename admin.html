@@ -61,7 +61,7 @@
         let token = localStorage.getItem('admin_token')
 
         async function api(method, body) {
-            const res = await fetch('/api/admin', {
+            const res = await fetch('/.netlify/functions/admin', {
                 method,
                 headers: { 'Content-Type': 'application/json', 'Authorization': token },
                 body: body ? JSON.stringify(body) : undefined

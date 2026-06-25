@@ -56,7 +56,7 @@
             errorEl.style.display = 'none'
 
             try {
-                const res = await fetch('/api/activate', {
+                const res = await fetch('/.netlify/functions/activate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ code, deviceId: getDeviceId() })

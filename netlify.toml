@@ -3,11 +3,6 @@
   functions = "functions"
 
 [[redirects]]
-  from = "/functions/*"
+  from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
-
-[[headers]]
-  for = "/functions/*"
-  [headers.values]
-    X-Robots-Tag = "noindex, nofollow"
