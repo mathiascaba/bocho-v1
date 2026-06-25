@@ -1,6 +1,11 @@
-import { getStore } from '@netlify/blobs'
+import { readFileSync, existsSync } from 'fs'
 
-const STORE_NAME = 'bcp-activaciones'
+const DATA = '/tmp/bcp_activaciones.json'
+
+function load() {
+  if (!existsSync(DATA)) return { codes: {} }
+  try { return JSON.parse(readFileSync(DATA, 'utf-8')) } catch { return { codes: {} } }
+}
 
 export const handler = async (event) => {
   const headers = {
@@ -15,17 +20,11 @@ export const handler = async (event) => {
 
   try {
     const { deviceId } = JSON.parse(event.body)
+    if (!deviceId) return { statusCode: 400, headers, body: JSON.stringify({ error: 'Falta dispositivo' }) }
 
-    if (!deviceId) {
-      return { statusCode: 400, headers, body: JSON.stringify({ error: 'Falta dispositivo' }) }
-    }
-
-    const store = getStore(STORE_NAME)
-    const { blobs } = await store.list()
-
-    for (const blob of blobs) {
-      const data = await store.get(blob.key, { type: 'json' })
-      if (data && data.used && data.deviceId === deviceId) {
+    const store = load()
+    for (const [code, data] of Object.entries(store.codes)) {
+      if (data.used && data.deviceId === deviceId) {
         return { statusCode: 200, headers, body: JSON.stringify({ activated: true }) }
       }
     }
