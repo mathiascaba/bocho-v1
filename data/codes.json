@@ -20,8 +20,8 @@
     "activatedAt": "2026-06-25T15:29:28.371Z"
   },
   "BCP-AB45B6C3": {
-    "used": false,
-    "deviceId": null,
-    "activatedAt": null
+    "used": true,
+    "deviceId": "DEV-dcff75f2-26c0-44c1-bb6e-642d61bec9d4",
+    "activatedAt": "2026-06-25T15:32:31.815Z"
   }
 }
