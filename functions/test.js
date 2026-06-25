@@ -1,11 +1,23 @@
+import { getStore } from '@netlify/blobs'
+
 exports.handler = async (event, context) => {
-  return {
-    statusCode: 200,
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      NETLIFY_BLOBS_CONTEXT: process.env.NETLIFY_BLOBS_CONTEXT,
-      NETLIFY_FUNCTIONS_TOKEN: process.env.NETLIFY_FUNCTIONS_TOKEN ? 'present' : 'missing',
-      NETLIFY_PURGE_API_TOKEN: process.env.NETLIFY_PURGE_API_TOKEN ? 'present' : 'missing'
+  try {
+    const store = getStore('bcp-activaciones', {
+      siteID: process.env.SITE_ID,
+      token: process.env.NETLIFY_FUNCTIONS_TOKEN
     })
+    await store.setJSON('test:hello', { msg: 'world' })
+    const val = await store.get('test:hello', { type: 'json' })
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ success: true, value: val })
+    }
+  } catch (e) {
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ error: e.message, name: e.name, code: e.code })
+    }
   }
 }
