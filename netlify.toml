@@ -2,7 +2,14 @@
   publish = "."
   functions = "functions"
 
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
+[[edge_functions]]
+  function = "admin"
+  path = "/api/admin"
+
+[[edge_functions]]
+  function = "activate"
+  path = "/api/activate"
+
+[[edge_functions]]
+  function = "verify"
+  path = "/api/verify"
