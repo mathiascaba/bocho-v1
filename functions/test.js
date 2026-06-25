@@ -1,20 +1,14 @@
-import { getStore } from '@netlify/blobs'
-
-export const handler = async (event) => {
+export default async (req, context) => {
   try {
-    const store = getStore('bcp-activaciones')
+    const store = context.blobs
     await store.setJSON('test:hello', { msg: 'world' })
     const val = await store.get('test:hello', { type: 'json' })
-    return {
-      statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ success: true, value: val })
-    }
+    return new Response(JSON.stringify({ success: true, value: val }), {
+      headers: { 'Content-Type': 'application/json' }
+    })
   } catch (e) {
-    return {
-      statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: e.message, stack: e.stack, name: e.name })
-    }
+    return new Response(JSON.stringify({ error: e.message, name: e.name, hasBlobs: !!context.blobs }), {
+      headers: { 'Content-Type': 'application/json' }
+    })
   }
 }
