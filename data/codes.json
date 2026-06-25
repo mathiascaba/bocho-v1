@@ -35,8 +35,8 @@
     "activatedAt": null
   },
   "BCP-FA3997FD": {
-    "used": false,
-    "deviceId": null,
-    "activatedAt": null
+    "used": true,
+    "deviceId": "DEV-3f3bbdbb-fdac-427c-9cac-e10d3392a771",
+    "activatedAt": "2026-06-25T15:34:26.260Z"
   }
 }
