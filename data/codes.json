@@ -18,5 +18,10 @@
     "used": true,
     "deviceId": "DEV-USER123",
     "activatedAt": "2026-06-25T15:29:28.371Z"
+  },
+  "BCP-AB45B6C3": {
+    "used": false,
+    "deviceId": null,
+    "activatedAt": null
   }
 }
