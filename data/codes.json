@@ -56,6 +56,12 @@
       "deviceId": "DEV-REUSE",
       "reason": "Code already used",
       "time": "2026-06-25T15:55:19.955Z"
+    },
+    {
+      "code": "000009000",
+      "deviceId": "DEV-99d8e91b-5191-47d1-81d8-6703d2b4adc6",
+      "reason": "Invalid code",
+      "time": "2026-06-25T16:52:03.088Z"
     }
   ],
   "BCP-E80C1D8D": {
