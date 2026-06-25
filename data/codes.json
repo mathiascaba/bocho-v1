@@ -15,8 +15,8 @@
     "activatedAt": "2026-06-25T15:28:48.325Z"
   },
   "BCP-FB51F44C": {
-    "used": false,
-    "deviceId": null,
-    "activatedAt": null
+    "used": true,
+    "deviceId": "DEV-USER123",
+    "activatedAt": "2026-06-25T15:29:28.371Z"
   }
 }
