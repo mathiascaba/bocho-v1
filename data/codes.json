@@ -13,5 +13,10 @@
     "used": true,
     "deviceId": "DEV-TEST12345",
     "activatedAt": "2026-06-25T15:28:48.325Z"
+  },
+  "BCP-FB51F44C": {
+    "used": false,
+    "deviceId": null,
+    "activatedAt": null
   }
 }
