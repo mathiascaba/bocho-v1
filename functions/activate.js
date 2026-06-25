@@ -1,18 +1,4 @@
-const ADMIN_PASSWORD = 'PEPHJ94H'
-
-// Simple file-based storage using /tmp (persists across warm invocations)
-import { readFileSync, writeFileSync, existsSync } from 'fs'
-
-const DATA = '/tmp/bcp_activaciones.json'
-
-function load() {
-  if (!existsSync(DATA)) return { codes: {} }
-  try { return JSON.parse(readFileSync(DATA, 'utf-8')) } catch { return { codes: {} } }
-}
-
-function save(data) {
-  writeFileSync(DATA, JSON.stringify(data))
-}
+import { getStore } from '@netlify/blobs'
 
 export const handler = async (event) => {
   const headers = {
@@ -27,25 +13,22 @@ export const handler = async (event) => {
 
   try {
     const { code, deviceId } = JSON.parse(event.body)
-
     if (!code || !deviceId) {
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'Faltan código o dispositivo' }) }
     }
 
-    const codeKey = code.toUpperCase()
-    const store = load()
+    const store = getStore('bcp-activaciones')
+    const codeKey = `code:${code.toUpperCase()}`
+    const existing = await store.get(codeKey, { type: 'json' })
 
-    if (!store.codes[codeKey]) {
+    if (!existing) {
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'Código inválido' }) }
     }
-
-    if (store.codes[codeKey].used) {
+    if (existing.used) {
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'Este código ya fue usado' }) }
     }
 
-    store.codes[codeKey] = { used: true, deviceId, activatedAt: new Date().toISOString() }
-    save(store)
-
+    await store.setJSON(codeKey, { used: true, deviceId, activatedAt: new Date().toISOString() })
     return { statusCode: 200, headers, body: JSON.stringify({ success: true }) }
   } catch (e) {
     return { statusCode: 500, headers, body: JSON.stringify({ error: 'Error interno' }) }
