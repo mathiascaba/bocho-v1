@@ -23,5 +23,15 @@
     "used": true,
     "deviceId": "DEV-dcff75f2-26c0-44c1-bb6e-642d61bec9d4",
     "activatedAt": "2026-06-25T15:32:31.815Z"
+  },
+  "BCP-7B4E4D95": {
+    "used": false,
+    "deviceId": null,
+    "activatedAt": null
+  },
+  "BCP-3BEB7012": {
+    "used": false,
+    "deviceId": null,
+    "activatedAt": null
   }
 }
