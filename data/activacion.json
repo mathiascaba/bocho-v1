@@ -1,5 +1,14 @@
 {
-  "codes": {},
+  "codes": {
+    "OL4IK4BM": {
+      "used": false,
+      "blocked": false,
+      "creado": "2026-06-26T16:00:25.190Z",
+      "dispositivo": null,
+      "fecha_uso": null,
+      "nombre": null
+    }
+  },
   "dispositivos": [],
   "intentos_fallidos": []
 }
