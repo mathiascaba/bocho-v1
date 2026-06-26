@@ -9,12 +9,12 @@
       "nombre": "Android"
     },
     "IG5EUR80": {
-      "used": false,
+      "used": true,
       "blocked": false,
       "creado": "2026-06-26T16:24:49.660Z",
-      "dispositivo": null,
-      "fecha_uso": null,
-      "nombre": null
+      "dispositivo": "DEV-2d5026bd-90a6-44fa-87d8-0b7a5550d17f",
+      "fecha_uso": "2026-06-26T16:24:56.364Z",
+      "nombre": "Android"
     },
     "YQOB5DZL": {
       "used": false,
@@ -28,8 +28,8 @@
   "dispositivos": [
     {
       "id": "DEV-2d5026bd-90a6-44fa-87d8-0b7a5550d17f",
-      "codigo": "OL4IK4BM",
-      "fecha": "2026-06-26T16:00:32.342Z",
+      "codigo": "IG5EUR80",
+      "fecha": "2026-06-26T16:24:56.364Z",
       "nombre": "Android"
     }
   ],
