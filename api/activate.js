@@ -37,7 +37,7 @@ module.exports = async (req, res) => {
         entry.blocked = true
         db.intentos_fallidos.push({ codigo: c, dispositivo, fecha: new Date().toISOString(), motivo: 'compartido_a_otro' })
         await guardar(REPO, db)
-        return res.status(400).json({ error: 'Codigo ya usado' })
+        return res.status(400).json({ error: 'Codigo bloqueado' })
       }
     }
 
