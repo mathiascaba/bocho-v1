@@ -23,6 +23,12 @@
       "dispositivo": "DEV-b2a5d440-e918-41d3-a407-42d472c27a29",
       "fecha": "2026-06-26T16:01:12.322Z",
       "motivo": "compartido_a_otro"
+    },
+    {
+      "codigo": "TEST1234",
+      "dispositivo": "TEST-DEVICE",
+      "fecha": "2026-06-26T16:09:03.237Z",
+      "motivo": "codigo_invalido"
     }
   ]
 }
