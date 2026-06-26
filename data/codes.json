@@ -73,5 +73,10 @@
     "used": true,
     "deviceId": "DEV-2d5026bd-90a6-44fa-87d8-0b7a5550d17f",
     "activatedAt": "2026-06-25T21:36:06.858Z"
+  },
+  "BCP-484FAFFC": {
+    "used": false,
+    "deviceId": null,
+    "activatedAt": null
   }
 }
