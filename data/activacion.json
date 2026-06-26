@@ -15,6 +15,14 @@
       "dispositivo": null,
       "fecha_uso": null,
       "nombre": null
+    },
+    "YQOB5DZL": {
+      "used": false,
+      "blocked": false,
+      "creado": "2026-06-26T16:24:50.569Z",
+      "dispositivo": null,
+      "fecha_uso": null,
+      "nombre": null
     }
   },
   "dispositivos": [
