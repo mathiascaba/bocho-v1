@@ -3,74 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Códigos de Activación</title>
+    <title>Admin - Codigos de Activacion</title>
     <link rel="icon" href="img/app-icon.png" type="image/png">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #f4f6f9; font-family: system-ui, sans-serif; padding: 20px; }
-        .container { max-width: 600px; margin: 0 auto; }
-        .card { background: white; border-radius: 16px; padding: 30px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
-        h1 { color: #002a80; font-size: 22px; margin-bottom: 20px; }
-        .login input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; margin-bottom: 12px; }
-        .login button { width: 100%; padding: 12px; background: #002a80; color: white; border: none; border-radius: 25px; font-size: 16px; font-weight: 600; cursor: pointer; }
-        .admin-panel { display: none; }
-        .gen-btn { padding: 12px 24px; background: #ff7800; color: white; border: none; border-radius: 25px; font-size: 16px; font-weight: 600; cursor: pointer; margin-right: 10px; }
-        .code-list { margin-top: 20px; }
-        .code-item { display: flex; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid #eee; font-family: monospace; font-size: 14px; }
-        .code-item .used { color: #22c55e; }
-        .code-item .pending { color: #999; }
-        .used-info { color: #999; font-size: 12px; font-family: system-ui; }
-        .logout { float: right; padding: 8px 16px; background: transparent; color: #d9534f; border: 1px solid #d9534f; border-radius: 20px; cursor: pointer; font-size: 13px; }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background:#f4f6f9; font-family:system-ui,sans-serif; padding:20px; }
+        .container { max-width:900px; margin:0 auto; }
+        .card { background:white; border-radius:16px; padding:30px; margin-bottom:20px; box-shadow:0 4px 15px rgba(0,0,0,0.08); }
+        h1 { color:#002a80; font-size:22px; }
+        .login input { width:100%; padding:12px; border:2px solid #ddd; border-radius:10px; font-size:16px; margin-bottom:12px; }
+        .login button { width:100%; padding:12px; background:#002a80; color:white; border:none; border-radius:25px; font-size:16px; font-weight:600; cursor:pointer; }
+        .admin-panel { display:none; }
+        .tabs { display:flex; gap:4px; margin-bottom:20px; flex-wrap:wrap; border-bottom:2px solid #e0e0e0; padding-bottom:8px; }
+        .tab { padding:10px 18px; border-radius:8px 8px 0 0; cursor:pointer; font-weight:600; font-size:14px; background:transparent; color:#666; border:none; }
+        .tab.active { background:#002a80; color:white; border-radius:8px; }
+        .tab-content { display:none; }
+        .tab-content.show { display:block; }
+        .gen-btn { padding:10px 18px; background:#ff7800; color:white; border:none; border-radius:25px; font-size:14px; font-weight:600; cursor:pointer; margin-right:8px; margin-bottom:8px; }
+        .gen-input { padding:10px; border:2px solid #ddd; border-radius:8px; font-size:14px; width:80px; text-align:center; margin-right:8px; }
+        table { width:100%; border-collapse:collapse; font-size:13px; }
+        th { text-align:left; padding:10px 8px; border-bottom:2px solid #e0e0e0; color:#666; font-size:12px; text-transform:uppercase; }
+        td { padding:10px 8px; border-bottom:1px solid #f0f0f0; }
+        .badge { display:inline-block; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700; }
+        .badge-ok { background:#e8f5e9; color:#2e7d32; }
+        .badge-blocked { background:#ffebee; color:#c62828; }
+        .badge-pending { background:#fff3e0; color:#e65100; }
+        .btn-sm { padding:4px 10px; border:none; border-radius:4px; cursor:pointer; font-size:11px; font-weight:700; }
+        .btn-block { background:#d9534f; color:white; }
+        .btn-unblock { background:#22c55e; color:white; }
+        .mono { font-family:monospace; font-size:12px; }
+        .copy-btn { padding:6px 14px; background:#e0e0e0; border:none; border-radius:4px; cursor:pointer; font-size:12px; margin-left:8px; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="card login" id="loginCard">
-            <h1>Admin - Banca Móvil</h1>
-            <input type="password" id="pwdInput" placeholder="Contraseña de admin">
+            <h1 style="margin-bottom:20px;">Admin - Banca Movil</h1>
+            <input type="password" id="pwdInput" placeholder="Contrasena de admin">
             <button onclick="login()">INGRESAR</button>
-            <p style="color:#d9534f;font-size:13px;margin-top:10px;display:none" id="loginError">Contraseña incorrecta</p>
+            <p style="color:#d9534f;font-size:13px;margin-top:10px;display:none" id="loginError">Contrasena incorrecta</p>
         </div>
 
         <div class="admin-panel" id="adminPanel">
             <div class="card">
-                <button class="logout" onclick="logout()">Cerrar sesión</button>
-                <h1>Gestión de códigos</h1>
-                <div style="margin: 15px 0;">
-                    <button class="gen-btn" onclick="generar(1)">Generar 1 código</button>
-                    <button class="gen-btn" onclick="generar(5)">Generar 5 códigos</button>
-                    <button class="gen-btn" onclick="generar(10)">Generar 10 códigos</button>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                    <h1>Admin - Banca Movil</h1>
+                    <button style="padding:8px 16px;background:transparent;color:#d9534f;border:1px solid #d9534f;border-radius:20px;cursor:pointer;font-size:13px;font-weight:600;" onclick="logout()">Cerrar sesion</button>
                 </div>
-                <div id="resultCodes" style="display:none;background:#f0fdf4;border:1px solid #22c55e;border-radius:10px;padding:15px;margin:15px 0;">
-                    <strong style="color:#166534;">Códigos generados:</strong>
-                    <div id="codesList" style="font-family:monospace;margin-top:8px;font-size:14px;"></div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('generar',this)">Generar</button>
+                    <button class="tab" onclick="switchTab('codigos',this)">Codigos</button>
+                    <button class="tab" onclick="switchTab('dispositivos',this)">Dispositivos</button>
+                    <button class="tab" onclick="switchTab('intentos',this)">Intentos</button>
                 </div>
-                <button class="gen-btn" style="background:#002a80;" onclick="recargarLista()">Actualizar lista</button>
-            </div>
 
-            <div class="card">
-                <h2 style="font-size:18px;color:#002a80;margin-bottom:15px;">Códigos</h2>
-                <div id="codeListContainer">
-                    <p style="color:#999;">Cargando...</p>
+                <div class="tab-content show" id="tab-generar">
+                    <input type="number" class="gen-input" id="cantidadInput" value="5" min="1" max="50">
+                    <button class="gen-btn" onclick="generar()">Generar codigos</button>
+                    <div id="resultCodes" style="display:none;background:#f0fdf4;border:1px solid #22c55e;border-radius:10px;padding:15px;margin:15px 0;">
+                        <strong style="color:#166534;">Generados:</strong>
+                        <div id="codesList" style="font-family:monospace;margin-top:8px;font-size:14px;"></div>
+                        <button class="copy-btn" onclick="copiarTodos()">Copiar todos</button>
+                    </div>
                 </div>
-            </div>
 
-            <div class="card" id="attemptsCard" style="display:none;">
-                <h2 style="font-size:18px;color:#d9534f;margin-bottom:15px;">Intentos fallidos</h2>
-                <div id="attemptsContainer"></div>
+                <div class="tab-content" id="tab-codigos"><div id="codigosContainer"><p style="color:#999;">Cargando...</p></div></div>
+                <div class="tab-content" id="tab-dispositivos"><div id="dispositivosContainer"><p style="color:#999;">Cargando...</p></div></div>
+                <div class="tab-content" id="tab-intentos"><div id="intentosContainer"><p style="color:#999;">Cargando...</p></div></div>
             </div>
         </div>
     </div>
 
     <script>
+        const PASS = '72586048'
         let token = localStorage.getItem('admin_token')
 
-        async function api(method, body) {
-            const res = await fetch('/api/admin', {
-                method,
-                headers: { 'Content-Type': 'application/json', 'Authorization': token },
-                body: body ? JSON.stringify(body) : undefined
-            })
+        async function api(method, path, body) {
+            const headers = { 'x-admin-pass': token }
+            if (body) headers['Content-Type'] = 'application/json'
+            const res = await fetch(path, { method, headers, body: body ? JSON.stringify(body) : undefined })
             if (res.status === 401) { token = null; localStorage.removeItem('admin_token'); location.reload(); return null }
             return res.json()
         }
@@ -83,70 +94,111 @@
         }
 
         function logout() {
-            localStorage.removeItem('admin_token')
-            token = null
+            localStorage.removeItem('admin_token'); token = null
             document.getElementById('adminPanel').style.display = 'none'
             document.getElementById('loginCard').style.display = 'block'
         }
 
         async function cargarAdmin() {
-            const data = await api('GET')
-            if (!data) return
-
-            if (data.error) {
-                document.getElementById('loginError').style.display = 'block'
+            const data = await api('GET', '/api/admin?action=codigos')
+            if (!data || data.error) {
+                if (data?.error) document.getElementById('loginError').style.display = 'block'
                 localStorage.removeItem('admin_token')
                 return
             }
-
             document.getElementById('loginCard').style.display = 'none'
             document.getElementById('adminPanel').style.display = 'block'
-            renderCodes(data.codes || [])
-            renderAttempts(data.attempts || [])
+            cargarTodo()
         }
 
-        function renderCodes(codes) {
-            const container = document.getElementById('codeListContainer')
-            if (codes.length === 0) {
-                container.innerHTML = '<p style="color:#999;">No hay códigos generados aún</p>'
-                return
+        async function cargarTodo() {
+            const c = await api('GET', '/api/admin?action=codigos')
+            const d = await api('GET', '/api/admin?action=dispositivos')
+            const i = await api('GET', '/api/admin?action=intentos')
+            if (c) renderCodigos(c)
+            if (d) renderDispositivos(d)
+            if (i) renderIntentos(i)
+        }
+
+        function badge(status) {
+            if (status === 'blocked') return '<span class="badge badge-blocked">Bloqueado</span>'
+            if (status === 'used') return '<span class="badge badge-ok">Usado</span>'
+            return '<span class="badge badge-pending">Disponible</span>'
+        }
+
+        function renderCodigos(list) {
+            const container = document.getElementById('codigosContainer')
+            if (!list.length) { container.innerHTML = '<p style="color:#999;">Sin codigos</p>'; return }
+            list.sort((a, b) => (a.used ? 1 : 0) - (b.used ? 1 : 0))
+            let html = '<table><tr><th>Codigo</th><th>Estado</th><th>Dispositivo</th><th>Nombre</th><th>Fecha uso</th><th>Accion</th></tr>'
+            for (const c of list) {
+                const estado = c.blocked ? 'blocked' : c.used ? 'used' : 'pending'
+                html += `<tr>
+                    <td class="mono">${c.codigo}</td>
+                    <td>${badge(estado)}</td>
+                    <td class="mono" style="font-size:11px;">${(c.dispositivo||'').substring(0,16)}...</td>
+                    <td>${c.nombre||'-'}</td>
+                    <td style="font-size:11px;">${c.fecha_uso ? new Date(c.fecha_uso).toLocaleString() : '-'}</td>
+                    <td>${c.blocked ? `<button class="btn-sm btn-unblock" onclick="accion('unblock','${c.codigo}')">Desbloquear</button>` : c.used ? `<button class="btn-sm btn-block" onclick="accion('block','${c.codigo}')">Bloquear</button>` : '-'}</td>
+                </tr>`
             }
-            let html = ''
-            codes.sort((a, b) => (a.used ? 1 : 0) - (b.used ? 1 : 0))
-            for (const c of codes) {
-                if (c.used) {
-                    html += `<div class="code-item"><span style="color:#22c55e;">${c.key}</span><span class="used-info">Usado · ${c.deviceId?.substring(0,12)}...</span></div>`
-                } else {
-                    html += `<div class="code-item"><span>${c.key}</span><span class="pending">Disponible</span></div>`
-                }
+            container.innerHTML = html + '</table>'
+        }
+
+        function renderDispositivos(list) {
+            const container = document.getElementById('dispositivosContainer')
+            if (!list.length) { container.innerHTML = '<p style="color:#999;">Sin dispositivos</p>'; return }
+            let html = '<table><tr><th>Nombre</th><th>ID</th><th>Codigo</th><th>Fecha</th></tr>'
+            for (const d of [...list].reverse()) {
+                html += `<tr><td>${d.nombre||'?'}</td><td class="mono" style="font-size:11px;">${d.id.substring(0,20)}...</td><td class="mono">${d.codigo}</td><td style="font-size:11px;">${new Date(d.fecha).toLocaleString()}</td></tr>`
             }
-            container.innerHTML = html
+            container.innerHTML = html + '</table>'
         }
 
-        function renderAttempts(attempts) {
-            const card = document.getElementById('attemptsCard')
-            const container = document.getElementById('attemptsContainer')
-            if (attempts.length === 0) { card.style.display = 'none'; return }
-            card.style.display = 'block'
-            let html = attempts.reverse().map(a =>
-                `<div class="code-item"><span style="color:#d9534f;">${a.code}</span><span style="font-size:11px;color:#999;text-align:right;">${a.reason}<br>${new Date(a.time).toLocaleString()}</span></div>`
-            ).join('')
-            container.innerHTML = html
+        const MOTIVOS = { codigo_invalido: 'Codigo invalido', reintento_mismo: 'Reintento del mismo disp.', compartido_a_otro: 'Compartido a otro dispositivo', codigo_bloqueado: 'Codigo bloqueado' }
+
+        function renderIntentos(list) {
+            const container = document.getElementById('intentosContainer')
+            if (!list.length) { container.innerHTML = '<p style="color:#999;">Sin intentos</p>'; return }
+            let html = '<table><tr><th>Codigo</th><th>Motivo</th><th>Dispositivo</th><th>Fecha</th><th>Accion</th></tr>'
+            for (const i of [...list].reverse()) {
+                html += `<tr>
+                    <td class="mono">${i.codigo}</td>
+                    <td>${MOTIVOS[i.motivo]||i.motivo}</td>
+                    <td class="mono" style="font-size:11px;">${(i.dispositivo||'').substring(0,16)}...</td>
+                    <td style="font-size:11px;">${new Date(i.fecha).toLocaleString()}</td>
+                    <td><button class="btn-sm btn-block" onclick="accion('block','${i.codigo}')">Bloquear</button></td>
+                </tr>`
+            }
+            container.innerHTML = html + '</table>'
         }
 
-        async function generar(n) {
-            const data = await api('POST', { action: 'generate', count: n })
+        function switchTab(name, btn) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('show'))
+            btn.classList.add('active')
+            document.getElementById('tab-'+name).classList.add('show')
+        }
+
+        async function generar() {
+            const n = parseInt(document.getElementById('cantidadInput').value) || 1
+            const data = await api('POST', '/api/admin', { action: 'generar', cantidad: n })
             if (!data) return
             if (data.codes) {
-                const div = document.getElementById('codesList')
-                div.innerHTML = data.codes.map(c => `<div>${c}</div>`).join('')
+                document.getElementById('codesList').innerHTML = data.codes.map(c => `<div>${c}</div>`).join('')
                 document.getElementById('resultCodes').style.display = 'block'
-                recargarLista()
+                window.generatedCodes = data.codes
+                cargarTodo()
             }
         }
 
-        async function recargarLista() {
-            cargarAdmin()
+        function copiarTodos() {
+            if (window.generatedCodes) navigator.clipboard.writeText(window.generatedCodes.join('\n'))
+        }
+
+        async function accion(action, codigo) {
+            await api('POST', '/api/admin', { action, codigo })
+            cargarTodo()
         }
 
         if (token) cargarAdmin()

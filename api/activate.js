@@ -1,79 +1,56 @@
-const crypto = require('crypto')
-
-const REPO = 'mathiascaba/bpc-clon'
-const PATH = 'data/codes.json'
-const BRANCH = 'main'
-
-async function getCodes(token) {
-  const url = `https://api.github.com/repos/${REPO}/contents/${PATH}?ref=${BRANCH}`
-  const res = await fetch(url, {
-    headers: { Authorization: `token ${token}`, 'User-Agent': 'bcp-activate' }
-  })
-  if (res.status === 404) return { codes: {}, sha: null }
-  const data = await res.json()
-  const content = JSON.parse(Buffer.from(data.content, 'base64').toString())
-  return { codes: content, sha: data.sha }
-}
-
-async function saveCodes(codes, sha, token) {
-  const url = `https://api.github.com/repos/${REPO}/contents/${PATH}`
-  const body = {
-    message: 'activate code',
-    content: Buffer.from(JSON.stringify(codes, null, 2)).toString('base64'),
-    branch: BRANCH
-  }
-  if (sha) body.sha = sha
-  const res = await fetch(url, {
-    method: 'PUT',
-    headers: { Authorization: `token ${token}`, 'User-Agent': 'bcp-activate', 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  })
-  return res.ok
-}
+const { leer, guardar } = require('./github-store.js')
+const REPO = 'mathiascaba/bocho-v1'
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
-
   if (req.method === 'OPTIONS') return res.status(204).end()
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  const token = process.env.GH_TOKEN
-  if (!token) return res.status(500).json({ error: 'GH_TOKEN not set' })
-
   try {
-    const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
-    const { code, deviceId } = body
-    if (!code || !deviceId) {
-      return res.status(400).json({ error: 'Missing code or device' })
-    }
+    const { codigo, dispositivo, nombre } = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
+    if (!codigo || !dispositivo) return res.status(400).json({ error: 'Faltan datos' })
 
-    const { codes, sha } = await getCodes(token)
-    const normalizedCode = code.toUpperCase()
-    const entry = codes[normalizedCode]
+    const db = await leer(REPO)
+    const c = codigo.toUpperCase()
+    const entry = db.codes[c]
 
     if (!entry) {
-      if (!codes._attempts) codes._attempts = []
-      codes._attempts.push({ code: normalizedCode, deviceId, reason: 'Invalid code', time: new Date().toISOString() })
-      await saveCodes(codes, sha, token)
-      return res.status(400).json({ error: 'Invalid code' })
+      db.intentos_fallidos.push({ codigo: c, dispositivo, fecha: new Date().toISOString(), motivo: 'codigo_invalido' })
+      await guardar(REPO, db)
+      return res.status(400).json({ error: 'Codigo invalido' })
+    }
+
+    if (entry.blocked) {
+      db.intentos_fallidos.push({ codigo: c, dispositivo, fecha: new Date().toISOString(), motivo: 'codigo_bloqueado' })
+      await guardar(REPO, db)
+      return res.status(400).json({ error: 'Codigo bloqueado' })
     }
 
     if (entry.used) {
-      if (!codes._attempts) codes._attempts = []
-      codes._attempts.push({ code: normalizedCode, deviceId, reason: 'Code already used', time: new Date().toISOString() })
-      await saveCodes(codes, sha, token)
-      return res.status(400).json({ error: 'Code already used' })
+      if (entry.dispositivo === dispositivo) {
+        db.intentos_fallidos.push({ codigo: c, dispositivo, fecha: new Date().toISOString(), motivo: 'reintento_mismo' })
+        await guardar(REPO, db)
+        return res.status(400).json({ error: 'Codigo ya usado' })
+      } else {
+        entry.blocked = true
+        db.intentos_fallidos.push({ codigo: c, dispositivo, fecha: new Date().toISOString(), motivo: 'compartido_a_otro' })
+        await guardar(REPO, db)
+        return res.status(400).json({ error: 'Codigo ya usado' })
+      }
     }
 
+    // Filtrar entrada vieja del dispositivo si ya existia
+    db.dispositivos = db.dispositivos.filter(d => d.id !== dispositivo)
+
     entry.used = true
-    entry.deviceId = deviceId
-    entry.activatedAt = new Date().toISOString()
+    entry.dispositivo = dispositivo
+    entry.nombre = nombre || 'Desconocido'
+    entry.fecha_uso = new Date().toISOString()
+    db.dispositivos.push({ id: dispositivo, codigo: c, fecha: entry.fecha_uso, nombre: entry.nombre })
 
-    const ok = await saveCodes(codes, sha, token)
-    if (!ok) return res.status(500).json({ error: 'save failed' })
-
+    await guardar(REPO, db)
     res.status(200).json({ success: true })
   } catch (e) {
     res.status(500).json({ error: e.message })

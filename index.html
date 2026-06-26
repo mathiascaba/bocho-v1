@@ -29,17 +29,15 @@
             }
 
             try {
-                const res = await fetch('/api/verify', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ deviceId: getDeviceId() })
-                })
+                const res = await fetch('/api/verify?dispositivo=' + encodeURIComponent(getDeviceId()))
                 const data = await res.json()
-                if (data.activated) {
+                if (data.activado && !data.bloqueado) {
                     localStorage.setItem('bcp_activated', 'true')
                     localStorage.setItem("userName", "Mathias");
                     localStorage.setItem("userBalance", "1200.00");
                     setTimeout(() => { window.location.replace("inicio.html"); }, 2000);
+                } else if (data.bloqueado) {
+                    window.location.replace("activar.html?bloqueado=1")
                 } else {
                     window.location.replace("activar.html")
                 }

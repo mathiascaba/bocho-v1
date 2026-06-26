@@ -7,16 +7,19 @@
     <link rel="icon" href="img/app-icon.png" type="image/png">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #002a80; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; font-family: system-ui, sans-serif; padding: 20px; }
+        body { background: #002a80; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; font-family: system-ui, sans-serif; padding: 20px; }
         .logo-splash { width: 100px; height: auto; margin-bottom: 25px; }
         .card { background: white; border-radius: 16px; padding: 40px 30px; text-align: center; max-width: 380px; width: 100%; box-shadow: 0 8px 30px rgba(0,0,0,0.2); }
         .card h1 { color: #002a80; font-size: 22px; margin-bottom: 8px; }
         .card p { color: #666; font-size: 14px; margin-bottom: 25px; line-height: 1.5; }
-        .card input { width: 100%; padding: 14px 16px; border: 2px solid #ddd; border-radius: 10px; font-size: 18px; text-align: center; text-transform: uppercase; letter-spacing: 2px; outline: none; font-family: monospace; }
+        .card input { width: 100%; padding: 14px 16px; border: 2px solid #ddd; border-radius: 10px; font-size: 20px; text-align: center; text-transform: uppercase; letter-spacing: 4px; outline: none; font-family: monospace; }
         .card input:focus { border-color: #ff7800; }
         .card button { width: 100%; padding: 14px; background: #ff7800; color: white; border: none; border-radius: 25px; font-size: 16px; font-weight: 700; margin-top: 15px; cursor: pointer; }
         .card button:disabled { opacity: 0.5; cursor: not-allowed; }
-        .error { color: #d9534f; font-size: 13px; margin-top: 12px; display: none; }
+        .card button.secondary { background: transparent; color: #ff7800; border: 2px solid #ff7800; }
+        .error { color: #d9534f; font-size: 14px; margin-top: 12px; display: none; padding: 10px; border-radius: 8px; }
+        .error-block { background: #fff3f3; border: 2px solid #d9534f; color: #d9534f; font-size: 16px; font-weight: 700; padding: 15px; }
+        .hidden { display: none; }
         .loader-mini { width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.3); border-top: 2px solid white; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; vertical-align: middle; margin-right: 8px; }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
@@ -24,65 +27,84 @@
 <body>
     <img src="img/logo-bcp.svg" alt="BCP" class="logo-splash">
     <div class="card">
-        <h1>Activar Aplicación</h1>
-        <p>Ingresá el código de activación que te proporcionaron</p>
-        <input type="text" id="codeInput" maxlength="12" placeholder="BCP-XXXXXXXX" autocomplete="off">
-        <div class="error" id="errorMsg"></div>
-        <button id="btnActivar" onclick="activar()">ACTIVAR</button>
+        <h1>Activar Aplicacion</h1>
+        <p>Ingresa el codigo de activacion</p>
+        <div id="bloqueoMsg" class="error error-block hidden">
+            Codigo de activacion bloqueado - Contactar a soporte
+            <button class="secondary" style="margin-top:15px;" onclick="mostrarForm()">Ingresar nuevo codigo</button>
+        </div>
+        <div id="formActivacion">
+            <input type="text" id="codeInput" maxlength="8" placeholder="CODIGO8" autocomplete="off">
+            <div class="error" id="errorMsg"></div>
+            <button id="btnActivar" onclick="activar()">ACTIVAR</button>
+        </div>
     </div>
     <script>
         function getDeviceId() {
             let id = localStorage.getItem('bcp_device_id')
-            if (!id) {
-                id = 'DEV-' + crypto.randomUUID()
-                localStorage.setItem('bcp_device_id', id)
-            }
+            if (!id) { id = 'DEV-' + crypto.randomUUID(); localStorage.setItem('bcp_device_id', id) }
             return id
         }
-
+        function getDeviceName() {
+            const m = navigator.userAgent.match(/Android\s[\d.]+;\s([^;]+)/)
+            return m ? m[1].trim() : 'Android'
+        }
+        function mostrarForm() {
+            document.getElementById('bloqueoMsg').classList.add('hidden')
+            document.getElementById('formActivacion').classList.remove('hidden')
+        }
         async function activar() {
             const btn = document.getElementById('btnActivar')
             const code = document.getElementById('codeInput').value.trim()
             const errorEl = document.getElementById('errorMsg')
-
-            if (!code) {
-                errorEl.textContent = 'Ingresá un código de activación'
-                errorEl.style.display = 'block'
-                return
-            }
-
+            if (!code) { errorEl.textContent = 'Ingresa el codigo'; errorEl.style.display = 'block'; return }
             btn.disabled = true
             btn.innerHTML = '<span class="loader-mini"></span> Activando...'
             errorEl.style.display = 'none'
-
             try {
                 const res = await fetch('/api/activate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ code, deviceId: getDeviceId() })
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ codigo: code, dispositivo: getDeviceId(), nombre: getDeviceName() })
                 })
                 const data = await res.json()
-
                 if (data.success) {
                     localStorage.setItem('bcp_activated', 'true')
                     window.location.replace('inicio.html')
                 } else {
-                    errorEl.textContent = data.error || 'Error al activar'
+                    errorEl.textContent = data.error || 'Error'
                     errorEl.style.display = 'block'
-                    btn.disabled = false
-                    btn.textContent = 'ACTIVAR'
+                    if (data.error === 'Codigo bloqueado') errorEl.className = 'error error-block'
+                    else errorEl.className = 'error'
+                    btn.disabled = false; btn.textContent = 'ACTIVAR'
                 }
             } catch (e) {
-                errorEl.textContent = 'Error de conexión. Verificá que tengas internet.'
+                errorEl.textContent = 'Error de conexion'
                 errorEl.style.display = 'block'
-                btn.disabled = false
-                btn.textContent = 'ACTIVAR'
+                btn.disabled = false; btn.textContent = 'ACTIVAR'
             }
         }
+        document.getElementById('codeInput').addEventListener('keydown', e => { if (e.key === 'Enter') activar() })
 
-        document.getElementById('codeInput').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') activar()
-        })
+        ;(async function() {
+            const params = new URLSearchParams(location.search)
+            if (params.get('bloqueado') === '1') {
+                document.getElementById('bloqueoMsg').classList.remove('hidden')
+                document.getElementById('formActivacion').classList.add('hidden')
+                return
+            }
+            const did = localStorage.getItem('bcp_device_id')
+            if (!did) return
+            try {
+                const res = await fetch('/api/verify?dispositivo=' + encodeURIComponent(did))
+                const data = await res.json()
+                if (data.activado && !data.bloqueado) window.location.replace('inicio.html')
+                if (data.bloqueado) {
+                    document.getElementById('bloqueoMsg').classList.remove('hidden')
+                    document.getElementById('formActivacion').classList.add('hidden')
+                    localStorage.removeItem('bcp_activated')
+                }
+            } catch(e) {}
+        })()
     </script>
 </body>
 </html>
