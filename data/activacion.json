@@ -2,7 +2,7 @@
   "codes": {
     "OL4IK4BM": {
       "used": true,
-      "blocked": false,
+      "blocked": true,
       "creado": "2026-06-26T16:00:25.190Z",
       "dispositivo": "DEV-2d5026bd-90a6-44fa-87d8-0b7a5550d17f",
       "fecha_uso": "2026-06-26T16:00:32.342Z",
